@@ -12,9 +12,6 @@ import java.util.List;
 
 public class IndexBuilder {
 
-	public static Long hash(Object o) {
-		return o.hashCode() * 1L;
-	}
 	public static List<NonClusteredBPlusTreeIndexEntry> buildNonClusteredBPlusTreeIndex(Database db, Transaction tx, String tableName, String attrName) {
 		List<NonClusteredBPlusTreeIndexEntry> entries = new ArrayList<>();
 
@@ -68,7 +65,7 @@ public class IndexBuilder {
 				pkvals[pks.indexOf(pk)] = record.getValueForGivenAttrName(pk);
 			}
 			NonClusteredHashIndexEntry entry = new NonClusteredHashIndexEntry(tableName, attrName,
-					hash(record.getValueForGivenAttrName(attrName)), pkvals);
+					FDBHelper.hash(record.getValueForGivenAttrName(attrName)), pkvals);
 
 			entries.add(entry);
 			record = rec.getNext(cursor);

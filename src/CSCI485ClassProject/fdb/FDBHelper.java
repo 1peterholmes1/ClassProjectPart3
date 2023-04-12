@@ -216,4 +216,11 @@ public class FDBHelper {
     tx.cancel();
     tx.close();
   }
+
+
+
+    public static Long hash(Object o) {
+      return o.hashCode() * 1L;
+    }
 }
+

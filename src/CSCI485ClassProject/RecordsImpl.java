@@ -2,7 +2,6 @@ package CSCI485ClassProject;
 
 import CSCI485ClassProject.fdb.FDBHelper;
 import CSCI485ClassProject.fdb.FDBKVPair;
-import CSCI485ClassProject.fdb.IndexBuilder;
 import CSCI485ClassProject.models.AttributeType;
 import CSCI485ClassProject.models.ComparisonOperator;
 import CSCI485ClassProject.models.Record;
@@ -139,7 +138,7 @@ public class RecordsImpl implements Records{
       IndexType type = FDBHelper.typeOfIndexIfExists(db,indexDirectory,tableName,attrName);
       if (type != null) {
         if (type == IndexType.NON_CLUSTERED_HASH_INDEX) {
-          NonClusteredHashIndexEntry indexEntry = new NonClusteredHashIndexEntry(tableName,attrName, IndexBuilder.hash(record.getValueForGivenAttrName(attrName)),primaryKeysValues);
+          NonClusteredHashIndexEntry indexEntry = new NonClusteredHashIndexEntry(tableName,attrName,FDBHelper.hash(record.getValueForGivenAttrName(attrName)),primaryKeysValues);
           FDBKVPair kvpair = new FDBKVPair(List.of(tableName,"indexes"),indexEntry.getKeyTuple(),indexEntry.getValueTuple());
           FDBHelper.setFDBKVPair(indexDirectory,tx,kvpair);
         } else if (type == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX) {

@@ -2,11 +2,9 @@ package CSCI485ClassProject;
 
 import CSCI485ClassProject.fdb.FDBHelper;
 import CSCI485ClassProject.fdb.FDBKVPair;
-import CSCI485ClassProject.fdb.IndexBuilder;
 import CSCI485ClassProject.models.*;
 import CSCI485ClassProject.models.Record;
 import CSCI485ClassProject.utils.ComparisonUtils;
-import com.apple.foundationdb.KeySelector;
 import com.apple.foundationdb.KeyValue;
 import com.apple.foundationdb.Range;
 import com.apple.foundationdb.Transaction;
@@ -153,7 +151,7 @@ public class Cursor {
       Tuple queryPrefix = new Tuple().add(tableName).add(predicateAttributeName);
       if (indexType == IndexType.NON_CLUSTERED_HASH_INDEX) {
         type = NonClusteredHashIndexEntry.INDEX_TYPE;
-        queryPrefix.add(type).add(IndexBuilder.hash(predicateAttributeValue.getValue()));
+        queryPrefix.add(type).add(FDBHelper.hash(predicateAttributeValue.getValue()));
       } else if (indexType == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX) {
         type = NonClusteredBPlusTreeIndexEntry.INDEX_TYPE;
         queryPrefix.add(type);
@@ -485,7 +483,7 @@ public class Cursor {
       IndexType type = FDBHelper.typeOfIndexIfExists(tx,indexSubspace,tableName,attrName);
       if (type != null) {
         if (type == IndexType.NON_CLUSTERED_HASH_INDEX) {
-          NonClusteredHashIndexEntry indexEntry = new NonClusteredHashIndexEntry(tableName,attrName, IndexBuilder.hash(currentRecord.getValueForGivenAttrName(attrName)),recordsTransformer.convertToFDBKVPairs(currentRecord).get(0).getKey().getNestedList(0).toArray());
+          NonClusteredHashIndexEntry indexEntry = new NonClusteredHashIndexEntry(tableName,attrName, FDBHelper.hash(currentRecord.getValueForGivenAttrName(attrName)),recordsTransformer.convertToFDBKVPairs(currentRecord).get(0).getKey().getNestedList(0).toArray());
           FDBKVPair kvpair = new FDBKVPair(List.of(tableName,"indexes"),indexEntry.getKeyTuple(),indexEntry.getValueTuple());
           FDBHelper.setFDBKVPair(indexSubspace,tx,kvpair);
         } else if (type == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX) {
@@ -517,12 +515,12 @@ public class Cursor {
     }
     for (String attrName : currentRecord.getMapAttrNameToValue().keySet()) {
       if (indexSubspace == null) {
-        indexSubspace = FDBHelper.openSubspace(tx,List.of(tableName,"indexes"));
+        indexSubspace = FDBHelper.createOrOpenSubspace(tx,List.of(tableName,"indexes"));
       }
       IndexType type = FDBHelper.typeOfIndexIfExists(tx,indexSubspace,tableName,attrName);
       if (type != null) {
         if (type == IndexType.NON_CLUSTERED_HASH_INDEX) {
-          tx.clear(Range.startsWith(indexSubspace.pack(List.of(tableName,"indexes",attrName,IndexBuilder.hash(currentRecord.getValueForGivenAttrName(attrName))))));
+          tx.clear(Range.startsWith(indexSubspace.pack(List.of(tableName,"indexes",attrName,FDBHelper.hash(currentRecord.getValueForGivenAttrName(attrName))))));
         } else if (type == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX) {
           tx.clear(Range.startsWith(indexSubspace.pack(List.of(tableName,"indexes",attrName,currentRecord.getValueForGivenAttrName(attrName)))));
         }
