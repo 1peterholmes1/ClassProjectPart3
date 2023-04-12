@@ -91,7 +91,7 @@ public interface Records {
   /**
    * Update the record that the cursor is pointing at, with new attribute values. Cursor must be in READ_WRITE mode.
    *
-   * If the given attribute(s) do not exist in the record, the update should fail and return CURSOR_UPDATE_ATTRIBUTE_NOT_FOUND.
+   * If the given attribute(s) do not exist, the attribute should be added to the table schema.
    * Part3: If index structures are built on some attributes, they should also be updated
    * @param cursor the target cursor
    * @param attrNames the attribute names
